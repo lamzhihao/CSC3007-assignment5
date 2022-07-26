@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+    <style>
+        #map {
+            width: 1000px;
+            height: 600px;
+        }
+
+        .marker {
+            width: 24px !important;
+            height: 24px !important;
+            margin-left: -12px;
+            margin-top: -12px;
+            border-radius: 18px;
+            border: 2px solid green;
+            text-align: center;
+            color: yellow;
+            background-color: #90EE90;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+    <div id="map"></div>
+    <script>
+        // api url
+        const api_url = "https://api.data.gov.sg/v1/environment/psi";
+        var environmentData = null;
+var psi = null;
+
+        // Defining async function
+        async function getapi(url) {
+
+            // Storing response
+            const response = await fetch(url);
+
+// Storing data in form of JSON
+var data = await response.json();
+
+                    // Store Json data in environmentData variable
+        environmentData = data.items[0].readings
+        locationData = data.region_metadata[0].label_location
+        //psi = environmentData.psi_twenty_four_hourly
+        const latLong = [];
+        const psi = [];
+
+        psi[0] = environmentData.psi_twenty_four_hourly.west;
+        psi[2] = environmentData.psi_twenty_four_hourly.east;
+        psi[4] = environmentData.psi_twenty_four_hourly.central;
+        psi[6] = environmentData.psi_twenty_four_hourly.south;
+        psi[8] = environmentData.psi_twenty_four_hourly.north;
+
+        latLong[0] = data.region_metadata[0].label_location.latitude
+        latLong[1]= data.region_metadata[0].label_location.longitude
+
+        latLong[2] = data.region_metadata[2].label_location.latitude
+        latLong[3] = data.region_metadata[2].label_location.longitude
+
+        latLong[4] = data.region_metadata[3].label_location.latitude
+        latLong[5] = data.region_metadata[3].label_location.longitude
+
+        latLong[6] = data.region_metadata[4].label_location.latitude
+        latLong[7] = data.region_metadata[4].label_location.longitude
+
+        latLong[8] = data.region_metadata[5].label_location.latitude
+        latLong[9] = data.region_metadata[5].label_location.longitude
+
+
+            let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+                detectRetina: true,
+                maxZoom: 18,
+                minZoom: 11,
+                //Do not remove this attribution
+                attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+                    'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+            });
+
+            let map = new L.Map("map", {
+                center: [1.347833, 103.809357],
+                zoom: 11,
+                maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+            })
+                .addLayer(tiles);
+        
+        for (let i =0; i<10; i=i+2){
+            var cicle;
+            circle = L.marker([latLong[i], latLong[i+1]], {
+            icon: L.divIcon({
+                className: 'my-custom-icon',
+                html: psi[i]
+            })
+        });
+            circle.addTo(map);
+        }
+
+
+        }
+
+        getapi(api_url);
+        
+    </script>
+
+</body>
+
+</html>
